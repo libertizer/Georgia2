@@ -1,0 +1,7 @@
+114072,Computer Programming,Fall
+5,Data Structures,Fall,Spring
+10,Operating Systems,Summer
+16,Programming Languages,Fall,Spring,Summer
+28,Advanced Computer Graphics,Fall,Summer
+33,Quantum Computing
+37,Data Science,Spring
