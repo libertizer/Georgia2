@@ -6,18 +6,23 @@ import java.util.List;
 public class Course {
 	private int id;
 	private String shortName;
-	private List<String> terms;
+	private List<String> allTerms;
+	private List<Course> prerequisites;
+	private TermEnum term;
 	private int availableSeats;
 	private int totalSeats;
+	private int year;
 	private Instructor instructor;
 	private ArrayList<Instructor> instructorSeats=new ArrayList <Instructor>();
+	private ArrayList<Student> studentsEnrolled=new ArrayList <Student>();
 	
 	public Course(int Id, String ShortName){
 		this.id=Id;
 		this.shortName=ShortName;
-		this.terms=new ArrayList<String>();
+		this.allTerms=new ArrayList<String>();
 		this.availableSeats=0;
 		this.totalSeats=0;
+		this.prerequisites=new ArrayList<Course>();
 	}
 	public int getId(){
 		return this.id;
@@ -31,12 +36,35 @@ public class Course {
 	public void setShortName(String ShortName){
 		this.shortName=ShortName;
 	}
-	
-	public List<String> getTerms(){
-		return this.terms;
+	public List <Student> getStudentsEnrolled(){
+		return this.studentsEnrolled;
 	}
-	public void setTerm(String Term){
-		this.terms.add(Term);
+	public void setStudentEnrollment(Student s){
+		
+		this.studentsEnrolled.add(s);
+		//adjust seats avialable
+		this.availableSeats=getAvailableSeats()-1;
+		System.out.println("enrolled");
+	}
+	
+	public TermEnum getTerm(){
+		return this.term;
+	}
+	public void setTerm(TermEnum t){
+		 this.term=t;
+	}
+	public int getYear(){
+		return this.year;
+	}
+	public void setYear(int y){
+		 this.year=y;
+	}
+	
+	public List<String> getAllTermsTaught(){
+		return this.allTerms;
+	}
+	public void addtoAllTermsTaught(String Term){
+		this.allTerms.add(Term);
 	}
 	public int getTotalSeats(){
 		return this.totalSeats;
@@ -50,8 +78,17 @@ public class Course {
 	public void setAvailableSeats(int AvailableSeats){
 		this.availableSeats=AvailableSeats;
 	}
-public void allocateSeats(Instructor Instructor, int Capacity){
+	
+	public void setPrerequisites(Course c){
+		this.prerequisites.add(c);
+	
+	}
+	public List<Course> getPrerequisites(){
 		
+		return this.prerequisites;
+	}
+	
+	public void allocateSeats(Instructor Instructor, int Capacity){
 		String output="";
 		if(instructorSeats.size()>0){
 			for(Instructor inst:instructorSeats){

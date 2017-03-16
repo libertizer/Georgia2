@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import model.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -20,6 +25,7 @@ public class HelperClass {
 	private ArrayList<Student> students=null;
 	private ArrayList<Instructor> instructors=null;
 	private ArrayList<Course> courses=null;
+	private ArrayList<Course> courseWithTerm=null;
 	private ArrayList<Term> terms=null;
 	private ArrayList<Prerequisite> prereq=null;
 	
@@ -43,7 +49,6 @@ public class HelperClass {
 	private CourseCatalog courseCatalog;
 	private Term te;
 	private Student st;
-	private Person pe;
 	private Instructor in;
 	private Course co;
 	private Prerequisite pr;
@@ -64,23 +69,34 @@ public class HelperClass {
     private String cvsSplitBy= ",";
     
     //current year and semester
-    private  int currentTermIndex=0;
-    private int year;
+    private static int currentTermIndex=0;
+    private static int currentYear;
     
     //other
     String errorMessage="unknown";
     Boolean end=false;
+    public static Lock lock_catalog=new ReentrantLock();
+    public static Condition cond=lock_catalog.newCondition();
+    
     
 	public HelperClass(){
+		lock_catalog.lock();
+		
 		instructors=new ArrayList<Instructor>();
 		students=new ArrayList<Student>();
 		courses=new ArrayList<Course>();
+		courseWithTerm=new ArrayList<Course>();
 		terms=new ArrayList<Term>();
+		courseCatalog = CourseCatalog.getCourseCatalog();
 		//read csv Files
 		getCsvData(studentFile, studentType);
 		getCsvData(instructorFile, instructorType);
 		getCsvData(courseFile, courseType);
 		getCsvData(termFile, termType);
+		
+		getCsvData(prereqFile, prereqType);
+		getCsvData(actionsFile, actionsType);
+		
 		addTermsToCourses();
 		//output to Console
 		printResult();
@@ -94,7 +110,7 @@ public class HelperClass {
 				
 			result = line.split(cvsSplitBy);
 			
-			//try error clause to not stop the program if a single row cannot be read
+			//this is a dispatcher for the different CSV files to read
 			try{
 				if(typeFile.equals(studentType)){
 					errorMessage="student";
@@ -160,9 +176,9 @@ public class HelperClass {
 					}
 				}
 			}
-			catch (Exception e){
-				/*PLEASE UNCOMMENT TO GET ERROR MESSAGES IN STANDART OUTPUT*/
-				//System.err.println("Error: Corrupt data for "+ errorMessage+" row. Please check csv file");
+			catch (Exception e)
+				{
+				
 				}
 			}
 		}
@@ -175,31 +191,31 @@ public class HelperClass {
 		}
 		return result;
 	}
-	
+	//Dispatcher for commands from the actions.csv file
 	public void doAction(String [] action){
 		try{
 			if(action[0].equals(startSim)){
 				errorMessage="start_sim";
 				if(action[1]!=null){
-					year=Integer.parseInt(action[1]);
-					System.out.println("> begin,"+TermEnum.values()[currentTermIndex]+","+year);
+					currentYear=Integer.parseInt(action[1]);
+					System.out.println("> begin,"+TermEnum.values()[currentTermIndex]+","+currentYear);
 				}
 			}
-			
 			else if(action[0].equals(nextTerm)){
 				errorMessage="next_term";
 				//new year  and semester cycle
-				if(currentTermIndex==2){
-					year+=1;
+				if(currentTermIndex==2)
+				{
+					currentYear+=1;
 					currentTermIndex=0;
-					System.out.println("> begin,"+TermEnum.values()[currentTermIndex]+","+year);
+					System.out.println("> begin,"+TermEnum.values()[currentTermIndex]+","+currentYear);
 				}
 				//just go to next semester, year stays the same
-				else{
+				else
+				{
 					currentTermIndex+=1;
-					System.out.println("> begin,"+TermEnum.values()[currentTermIndex]+","+year);
+					System.out.println("> begin,"+TermEnum.values()[currentTermIndex]+","+currentYear);
 				}
-				
 			}
 			else if(action[0].equals(seatAllocation)){
 				boolean courseExists=false;
@@ -221,6 +237,7 @@ public class HelperClass {
 			}
 			else if(action[0].equals(courseRequest)){
 				
+				requestCourse(Integer.parseInt(action[1]),Integer.parseInt(action[2]));
 			}
 			else if(action[0].equals(gradeAllocation)){
 				
@@ -236,23 +253,27 @@ public class HelperClass {
 		{
 			System.err.println(e);
 		}
-		
 	}
 	
 	public void addTermsToCourses ()
 	{
-		//sort terms: FAll, Spring, Summer
+		//sort terms: Fall, Spring, Summer
 		Collections.sort(terms, (o1, o2) -> o1.getTerm() .compareTo( o2.getTerm()));
+		
 		for(Course c: courses ){
-			ArrayList<String> termArray=new ArrayList<String>();
 			for(Term t: terms){
 				//addterms during which course was taught to arraylist
 				if(c.getId()==t.getCourseId()){
-					c.setTerm(t.getTerm().toString());
+					c.addtoAllTermsTaught(t.getTerm().toString());
+					Course nc=c;
+					nc.setTerm(t.getTerm());
+					nc.setYear(currentYear);
+					//add courses with terms to coursecatalog
+					courseCatalog.addCourseSingleTerm(c);
 				}
 			}
 		}
-	
+		lock_catalog.unlock();
 	}
 	//output to console
 	public void printResult(){
@@ -260,7 +281,8 @@ public class HelperClass {
 		printNumInstructors();
 		printNumInstrStudents();
 		printNumCourses();
-		printCoursesWithTerms();
+		addCoursesToCourseCatalog();
+		courseCatalog.printAllEntries();
 	}
 	
 	public void printNumInstructors(){
@@ -284,14 +306,27 @@ public class HelperClass {
 		System.out.println((instructors.size()+students.size())-allPersons.size());
 	}
 
-	//print Courses with restective terms
-	public void printCoursesWithTerms(){
-		courseCatalog = new CourseCatalog();
+	//print Courses with all Terms
+	public void addCoursesToCourseCatalog(){
 		for(Course c: courses ){
 			//add course id and courses with their terms to course catalog
 			courseCatalog.addCourse(c);
-		}
-		courseCatalog.printAllEntries();
+		}	
+	}
+	
+	public void requestCourse(int courseId, int studentId)
+	{
+		//public void requestCourse(int courseId, int year, TermEnum t)
+		Student s;
+		Optional<Student> sget= students.stream()
+				.filter(Student -> Student.getUuid()==studentId)
+				.findFirst();
+		 if (sget.isPresent()){
+		 	s= sget.get();
+		 	s.requestCourse(courseId, currentYear, TermEnum.values()[currentTermIndex]);
+		 }
+		 else{System.out.println("Error - Student id not found");}
+		
 	}
 		
 	public static void main(String[] args) {

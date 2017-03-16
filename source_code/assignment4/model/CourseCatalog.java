@@ -6,26 +6,52 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import controller.HelperClass;
 
 /*This class is not in the UML diagramm since it is a kind of helper class*/
 public class CourseCatalog {
 	
-	private List<Course>catalog;
-	//necessary for lambda expression sorting
-	private Map<Course, Object>buffer;
-	public CourseCatalog(){
-		catalog=new ArrayList <Course>();
+	private static CourseCatalog instance = null;
+	private static List<Course>catalog;
+	private static List<Course>catalogOneCoursePerTerm;
+	private CourseCatalog(){
+		
 	}
 	//add Courses with terms to courseCatalog
 	public void addCourse(Course c ){
-		this.catalog.add(c);
+		catalog.add(c);
 	}
+	public void addCourseSingleTerm(Course c ){
+		catalogOneCoursePerTerm.add(c);
+		System.out.println("SIZE COURSECATALOG "+catalogOneCoursePerTerm.size());
+	}
+	public Course getCourseSingleTerm(int courseId, int year, TermEnum t ){
+		try {
+			HelperClass.cond.await();
+			System.out.println("SIZE COURSECATALOG "+catalogOneCoursePerTerm.size());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for(Course c: catalogOneCoursePerTerm)
+		{
+			if(c.getId()==courseId/*&&c.getYear()==year && c.getTerm().equals(t)*/)
+			{
+				return c;
+			}
+		}
+		return null;
+		
+	}
+	
 	//print out courses with terms
 	public void printAllEntries(){
 		sortCatalog();
 		/*Adapt output to match requirements*/
 		for (Course c: catalog)
-		{	List<String>toClean=c.getTerms();
+		{	List<String>toClean=c.getAllTermsTaught();
 			
 		StringBuilder listString = new StringBuilder();
 
@@ -39,11 +65,22 @@ public class CourseCatalog {
 		}
 	}
 	public void sortCatalog(){
-		//sort terms
+		//sort catalog by courseId
 		Collections.sort(catalog, (o1, o2) -> o1.getId() - o2.getId());
+		Collections.sort(catalogOneCoursePerTerm, (o1, o2) -> o1.getId() - o2.getId());
 	}
 	
-	
+	public static CourseCatalog getCourseCatalog()
+	{
+		if(instance==null)
+		{
+			instance=new CourseCatalog();
+			catalog=new ArrayList <Course>();
+			catalogOneCoursePerTerm=new ArrayList <Course>();
+			return instance;
+		}
+		return instance;
+	}
 	
 	
 	public void printNumCourses(){
