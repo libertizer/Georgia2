@@ -1,0 +1,77 @@
+start_sim,2016
+> begin,Fall,2016
+student_report,9
+> student,GARY ALLEN
+student_report,15
+> student,JAMES FISHER
+allocate_seats,4,2,3
+> total,3,available,3
+request_course,9,2
+> enrolled
+request_course,15,2
+> enrolled
+assign_grade,9,2,F
+> recorded,F
+next_term
+> begin,Spring,2016
+student_report,9
+> student,GARY ALLEN
+> 2,Computer Programming,F
+student_report,15
+> student,JAMES FISHER
+> 2,Computer Programming,I
+allocate_seats,4,2,2
+> total,2,available,2
+allocate_seats,4,5,1
+> total,1,available,1
+allocate_seats,8,10,1
+> total,1,available,1
+request_course,9,2
+> enrolled
+request_course,15,2
+> enrolled
+request_course,15,5
+> enrolled
+request_course,15,10
+> not enrolled - missing prerequisites
+request_course,9,5
+> not enrolled - no available seats
+assign_grade,9,2,A
+> recorded,A
+assign_grade,15,2,C
+> recorded,C
+assign_grade,15,5,D
+> recorded,D
+next_term
+> begin,Summer,2016
+student_report,9
+> student,GARY ALLEN
+> 2,Computer Programming,A
+student_report,15
+> student,JAMES FISHER
+> 2,Computer Programming,C
+> 5,Data Structures,D
+allocate_seats,4,5,2
+> total,2,available,2
+allocate_seats,8,10,1
+> total,1,available,1
+request_course,15,10
+> enrolled
+request_course,24,5
+> enrolled
+assign_grade,15,10,A
+> recorded,A
+assign_grade,24,5,B
+> recorded,B
+next_term
+> begin,Fall,2017
+student_report,15
+> student,JAMES FISHER
+> 2,Computer Programming,C
+> 5,Data Structures,D
+> 10,Operating Systems,A
+student_report,24
+> student,DWIGHT WILCOX
+> 5,Data Structures,B
+stop_sim
+> end,Fall,2017

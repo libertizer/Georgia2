@@ -1,0 +1,22 @@
+start_sim,2016
+> begin,Fall,2016
+allocate_seats,4,2,1
+> total,1,available,1
+allocate_seats,8,10,3
+> total,3,available,3
+instructor_report,4
+> instructor,ROBERT RYAN
+> 2,Computer Programming,1
+instructor_report,8
+> instructor,REBECCA CURRY
+> 10,Operating Systems,3
+request_course,16,2
+> enrolled
+request_course,17,10
+> not enrolled - missing prerequisites
+request_course,21,2
+> not enrolled - no available seats
+request_course,24,17
+> not enrolled - missing prerequisites
+stop_sim
+> end,Fall,2016

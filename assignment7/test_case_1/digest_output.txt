@@ -1,0 +1,12 @@
+start_sim,2016
+> begin,Fall,2016
+next_term
+> begin,Spring,2016
+next_term
+> begin,Summer,2016
+next_term
+> begin,Fall,2017
+next_term
+> begin,Spring,2017
+stop_sim
+> end,Spring,2017

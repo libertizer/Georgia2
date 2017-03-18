@@ -1,0 +1,6 @@
+start_sim,2016
+allocate_seats,4,2,1
+instructor_report,4
+request_course,16,2
+student_report,16
+stop_sim

@@ -1,0 +1,25 @@
+start_sim,2016
+> begin,Fall,2016
+allocate_seats,4,2,3
+> total,3,available,3
+instructor_report,4
+> instructor,ROBERT RYAN
+> 2,Computer Programming,3
+request_course,16,2
+> enrolled
+assign_grade,16,2,A
+> recorded,A
+student_report,16
+> student,TRACEY WHITE
+> 2,Computer Programming,A
+next_term
+> begin,Spring,2016
+request_course,21,2
+> not enrolled - no available seats
+instructor_report,4
+> instructor,ROBERT RYAN
+student_report,16
+> student,TRACEY WHITE
+> 2,Computer Programming,A
+stop_sim
+> end,Spring,2016

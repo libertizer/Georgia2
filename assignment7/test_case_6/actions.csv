@@ -1,0 +1,15 @@
+start_sim,2016
+allocate_seats,2,5,2
+instructor_report,2
+allocate_seats,8,5,2
+allocate_seats,2,5,1
+instructor_report,2
+request_course,12,5
+request_course,14,5
+instructor_report,8
+allocate_seats,8,5,0
+instructor_report,8
+instructor_report,2
+allocate_seats,2,5,0
+instructor_report,2
+stop_sim

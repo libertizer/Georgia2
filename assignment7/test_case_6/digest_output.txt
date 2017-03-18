@@ -1,0 +1,36 @@
+start_sim,2016
+> begin,Fall,2016
+allocate_seats,2,5,2
+> total,2,available,2
+instructor_report,2
+> instructor,EVERETT KIM
+> 5,Data Structures,2
+allocate_seats,8,5,2
+> total,4,available,4
+allocate_seats,2,5,1
+> total,3,available,3
+instructor_report,2
+> instructor,EVERETT KIM
+> 5,Data Structures,1
+request_course,12,5
+> enrolled
+request_course,14,5
+> enrolled
+instructor_report,8
+> instructor,REBECCA CURRY
+> 5,Data Structures,2
+allocate_seats,8,5,0
+> warning - total,2,available,0
+instructor_report,8
+> instructor,REBECCA CURRY
+> 5,Data Structures,1
+instructor_report,2
+> instructor,EVERETT KIM
+> 5,Data Structures,1
+allocate_seats,2,5,0
+> warning - total,2,available,0
+instructor_report,2
+> instructor,EVERETT KIM
+> 5,Data Structures,1
+stop_sim
+> end,Fall,2016
