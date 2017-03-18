@@ -1,0 +1,2 @@
+test_case_7
+Confirm that allocate_seats() data is "cleared" at the beginning of each term, while the enrollment data that generated via request_course() is maintained throughout the simulation run (unless overwritten or updated by a more recent grade for the same course).
